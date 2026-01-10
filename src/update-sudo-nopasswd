@@ -1,0 +1,44 @@
+#!/bin/bash
+set -e
+SHARE_DIR="/usr/share/sudo-nopasswd"
+CONSTANTS="sudo_no_passwd_constants.sh"
+source "$SHARE_DIR/$CONSTANTS"
+[ "$EUID" -eq 0 ] || { sudo "$0" "$@"; exit $?; }
+cp "$SUDOERS_FILE" "$SUDOERS_BAK"
+
+if grep -q "^%sudo.*NOPASSWD" "$SUDOERS_FILE"; then
+    grep "%sudo.*NOPASSWD" "$SUDOERS_FILE" |
+        sed -E 's/.*NOPASSWD: //;s/([^\\]),/\1\n/g;s/\\\\//g' > "$BEFORE_COMMANDS"
+else
+    touch "$BEFORE_COMMANDS"
+fi
+output="$(
+    cat "$ETC_FILE" |
+        awk -F' ' '{"command -v "$1 | getline program; $1=program; print}' |
+        sed -E 's/([:,#])/\\\\\1/g' |
+        paste -sd,
+)"
+sep=$(printf '\001')
+if [ "$output" ]; then
+    if grep -q "^%sudo.*NOPASSWD" "$SUDOERS_FILE"; then
+        sed -i "s${sep}^%sudo.*NOPASSWD: .*${sep}%sudo ALL=(ALL:ALL) NOPASSWD: $output${sep}" "$SUDOERS_FILE"
+    else
+        sed -i "/^%sudo/a %sudo ALL=(ALL:ALL) NOPASSWD: $output" "$SUDOERS_FILE"
+    fi
+else
+    sed -i "/^%sudo.*NOPASSWD/d" "$SUDOERS_FILE"
+fi
+if ! visudo -c "$SUDOERS_FILE" >/dev/null 2>&1; then
+    cat "$SUDOERS_BAK" | grep "%sudo.*NOPASSWD"
+    cp "$SUDOERS_BAK" "$SUDOERS_FILE"
+    echo "Syntax error detected in $SUDOERS_FILE. Reverted to backup."
+    exit 1
+else
+    rm "$SUDOERS_BAK"
+fi
+cat "$ETC_FILE" |
+    awk -F' ' '{"command -v "$1 | getline program; $1=program; print}' > "$AFTER_COMMANDS"
+diff -u "$BEFORE_COMMANDS" "$AFTER_COMMANDS" --color=always |
+    grep $'^\x1b\\[[0-9;]*m[+-]' |
+    grep -Ev $'^\x1b\\[[0-9;]*m([+][+][+]|[-][-][-])'
+rm "$BEFORE_COMMANDS" "$AFTER_COMMANDS"

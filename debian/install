@@ -1,0 +1,5 @@
+src/sudo_no_passwd_constants.sh usr/share/sudo-nopasswd/
+src/update-sudo-nopasswd usr/bin/
+src/watch-sudo-nopasswd usr/bin/
+src/watch-sudo-nopasswd.service lib/systemd/system/
+src/watch-sudo-nopasswd.init etc/init.d/

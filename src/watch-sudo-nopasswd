@@ -1,0 +1,11 @@
+#!/bin/bash
+set -e
+[ "$EUID" -eq 0 ] || { sudo "$0" "$@"; exit $?; }
+SHARE_DIR="/usr/share/sudo-nopasswd"
+CONSTANTS="sudo_no_passwd_constants.sh"
+source "$SHARE_DIR/$CONSTANTS"
+while [ 1 ]; do
+	while ! inotifywait -e close_write "$ETC_FILE"; do
+		"$UPDATE_COMMAND"
+	done
+done

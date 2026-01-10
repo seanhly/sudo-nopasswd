@@ -1,0 +1,11 @@
+#!/sbin/openrc-run
+description="Watch for changes to sudo-nopasswd and update sudoers"
+command="/usr/bin/watch-sudo-nopasswd"
+command_background=yes
+pidfile="/run/watch-sudo-nopasswd.pid"
+start_stop_daemon_args="--quiet"
+stop() {
+    ebegin "Stopping watch-sudo-nopasswd"
+    start-stop-daemon --stop --pidfile /run/watch-sudo-nopasswd.pid
+    eend $?
+}
