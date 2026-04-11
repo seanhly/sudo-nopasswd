@@ -1,6 +1,23 @@
 #!/bin/bash
 set -e
-[ "$EUID" -eq 0 ] || { sudo "$0" "$@"; exit $?; }
+[ "$EUID" -eq 0 ] || { sudo "$0" "$@" "$EDITOR"; exit $?; }
+editor="${!#}"
+if [ -z "$editor" ]; then
+	editor="${EDITOR:-}"
+	if [ -z "$editor" ]; then
+		if command -v vim >/dev/null 2>&1; then
+			editor="vim"
+		elif command -v nano >/dev/null 2>&1; then
+			editor="nano"
+		else
+			echo "No editor found. Please set the EDITOR environment variable or pass an editor as an argument."
+			exit 1
+		fi
+		set -- "${@:1:$(($#-1))}"
+	fi
+else
+	EDITOR="$editor"
+fi
 SHARE_ROOTS=("$HOME/.local/share" "/usr/local/share" "/usr/share")
 for SHARE_ROOT in "${SHARE_ROOTS[@]}"; do
 	if [ -d "$SHARE_ROOT/sudo-nopasswd" ]; then

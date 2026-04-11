@@ -18,3 +18,8 @@ INITD_DIR="/etc/init.d"
 
 UPDATE_COMMAND="update-sudo-nopasswd"
 WATCH_COMMAND="watch-sudo-nopasswd"
+EDIT_COMMAND="sudo-nopasswd"
+
+if [ ! "$SHARE_DIR" ]; then
+	SHARE_DIR="/usr/share/sudo-nopasswd"
+fi
