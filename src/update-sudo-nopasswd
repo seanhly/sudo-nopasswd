@@ -1,9 +1,15 @@
 #!/bin/bash
 set -e
-SHARE_DIR="/usr/share/sudo-nopasswd"
+[ "$EUID" -eq 0 ] || { sudo "$0" "$@"; exit $?; }
+SHARE_ROOTS=("$HOME/.local/share" "/usr/local/share" "/usr/share")
+for SHARE_ROOT in "${SHARE_ROOTS[@]}"; do
+	if [ -d "$SHARE_ROOT/sudo-nopasswd" ]; then
+		SHARE_DIR="$SHARE_ROOT/sudo-nopasswd"
+		break
+	fi
+done
 CONSTANTS="sudo_no_passwd_constants.sh"
 source "$SHARE_DIR/$CONSTANTS"
-[ "$EUID" -eq 0 ] || { sudo "$0" "$@"; exit $?; }
 cp "$SUDOERS_FILE" "$SUDOERS_BAK"
 
 if grep -q "^%sudo.*NOPASSWD" "$SUDOERS_FILE"; then

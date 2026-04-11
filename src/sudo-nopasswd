@@ -10,8 +10,5 @@ for SHARE_ROOT in "${SHARE_ROOTS[@]}"; do
 done
 CONSTANTS="sudo_no_passwd_constants.sh"
 source "$SHARE_DIR/$CONSTANTS"
-while [ 1 ]; do
-	while ! inotifywait -e close_write "$ETC_FILE"; do
-		"$UPDATE_COMMAND"
-	done
-done
+"$EDITOR" "$ETC_FILE"
+"$UPDATE_COMMAND"
