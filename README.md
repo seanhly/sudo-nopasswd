@@ -178,4 +178,4 @@ docs/       project assets/icons
 
 ## License
 
-GPL-3. See `debian/copyright` for packaging license metadata.
+GPL-3
