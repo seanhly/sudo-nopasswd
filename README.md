@@ -178,4 +178,4 @@ docs/       project assets/icons
 
 ## License
 
-GPL-3
+This project is licensed under the GNU General Public License, version 3. See LICENSE for the full text.
