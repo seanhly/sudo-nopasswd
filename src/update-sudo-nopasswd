@@ -45,6 +45,6 @@ fi
 cat "$ETC_FILE" |
     awk -F' ' '{"command -v "$1 | getline program; $1=program; print}' > "$AFTER_COMMANDS"
 diff -u "$BEFORE_COMMANDS" "$AFTER_COMMANDS" --color=always |
-    grep $'^\x1b\\[[0-9;]*m[+-]' |
-    grep -Ev $'^\x1b\\[[0-9;]*m([+][+][+]|[-][-][-])'
+    awk $'/^\x1b\\[[0-9;]*m[+-]/' |
+    awk $'!/^\x1b\\[[0-9;]*m([+][+][+]|[-][-][-])/'
 rm "$BEFORE_COMMANDS" "$AFTER_COMMANDS"
